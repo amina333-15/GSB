@@ -1,7 +1,9 @@
 @extends("layouts.master")
+
 @section('content')
 
-    <form method="POST" action="{{url('/connecter')}}">{{csrf_field() }}
+    <form method="POST" action="{{url('/authentifier')}}">
+        {{csrf_field() }}
 
         <h1>Authentification</h1>
         <div class="col-md-12 card card-body bg-light">
@@ -40,5 +42,5 @@
 
                 @if(isset($erreur))
                     <div class="alert alert-danger" role="alert">{{ $erreur }}</div>
-    @endif
+                @endif
 @endsection
