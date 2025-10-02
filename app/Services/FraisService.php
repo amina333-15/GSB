@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Services;
-
+use App\Exception\UserException;
 use App\Models\Frais;
+use Illuminate\Database\QueryException;
 
 
 class FraisService
