@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Exception;
 use App\Services\FraisService;
 use Illuminate\Http\Request;
 use App\Models\Frais;
