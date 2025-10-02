@@ -32,7 +32,7 @@
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/deconnecter') }}">Se déconnecter</a>
+                            <a class="nav-link" href="{{ url('/deconnecter') }}">({{session('visiteur')}}) Se déconnecter</a>
                         </li>
                     </ul>
                 @else
