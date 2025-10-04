@@ -75,4 +75,15 @@ class FraisController extends Controller
             return view('error', compact('exception'));
         }
     }
+
+    public function removeFrais($id)
+    {
+        try{
+            $service = new FraisService();
+            $service->deleteFrais($id);
+            return redirect()->route('listeFrais');
+        } catch (Exception $exception) {
+            return view('error', compact('exception'));
+        }
+    }
 }
