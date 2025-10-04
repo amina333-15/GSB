@@ -55,8 +55,23 @@ class FraisService
     public function getListEtats(){
         try{
             Etat::query()->get()
-        }catch{
-            
+    } catch (QueryException $exception) {
+            $userMessage="Impossible d'accéder à la base de données.";
+            throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function deleteFrais($id){
+        try{
+            $frais = Frais::query()->find($id);
+            $frais->delete();
+    } catch (QueryException $exception) {
+            if ($exception->getCode() == 23000) {
+                $userMessage="Impossible de supprimer une fiche avec des frais saisis.";
+            }else{
+                $userMessage="Erreur de suppression dans le base de données.";
+            }
+            throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
         }
     }
 
