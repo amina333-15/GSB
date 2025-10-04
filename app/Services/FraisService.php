@@ -12,7 +12,11 @@ class FraisService
 
         try
         {
-            $liste = Frais::query()->where('id_visiteur', '=', $id_visiteur)->get();
+            $liste = Frais::query()
+                ->select('frais.*', 'etat.lib_etat')
+                ->join('etat', 'etat.id_etat', '=', 'frais.id_etat')
+                ->where('id_visiteur', '=', $id_visiteur)
+                ->get();
         }
         catch(QueryException $exception)
         {
