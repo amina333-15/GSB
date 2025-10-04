@@ -25,7 +25,7 @@ class FraisController extends Controller
         try{
             $frais = new Frais();
             $frais->anneemois=date("Y-m");
-            return view('formFrais', compact('frais'));
+            return view('formFrais', compact('frais', 'etats'));
         } catch (Exception $exception) {
             return view('error', compact('exception'));
         }
@@ -63,7 +63,7 @@ class FraisController extends Controller
         try{
             $service = new FraisService();
             $frais = $service->getFrais($id);
-            return view('formFrais', compact('frais'));
+            return view('formFrais', compact('frais', 'etats'));
         } catch (Exception $exception) {
             return view('error', compact('exception'));
         }
