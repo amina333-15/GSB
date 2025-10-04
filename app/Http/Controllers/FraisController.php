@@ -6,6 +6,7 @@ use Exception;
 use App\Services\FraisService;
 use Illuminate\Http\Request;
 use App\Models\Frais;
+use App\Models\Etat;
 
 class FraisController extends Controller
 {
@@ -25,6 +26,10 @@ class FraisController extends Controller
         try{
             $frais = new Frais();
             $frais->anneemois=date("Y-m");
+            
+            $etats = [new Etat()];
+            $etats[0]->lib_etat = "Création en cours";
+            
             return view('formFrais', compact('frais', 'etats'));
         } catch (Exception $exception) {
             return view('error', compact('exception'));
@@ -39,9 +44,11 @@ class FraisController extends Controller
             if ($id_frais) {
                 $frais = $service->getFrais($id_frais);
                 $frais->id_visiteur = session('id_visiteur');
+                $frais->id_etat = $request->input('etat');
             } else {
                 $frais = new Frais();
                 $frais->id_visiteur = session('id_visiteur');
+                $frais->id_etat = 2;
             }
             $frais->anneemois = $request->input('mois');
             $frais->nbjustificatifs = $request->input('nbjustif');
