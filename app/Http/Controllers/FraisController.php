@@ -52,10 +52,13 @@ class FraisController extends Controller
                 $frais->id_etat = 2;
             }
             $frais->anneemois = $request->input('mois');
+
+            $frais->titre = $request->input('titre');
+            $frais->datemodification = date('Y-m-d');
+            
             $frais->nbjustificatifs = $request->input('nbjustif');
             $frais->montantvalide = $request->input('valide');
             $frais->id_etat = $request->input('etat');
-            $frais->datemodification = date('Y-m-d');
 
             $service = new FraisService();
             $service->saveFrais($frais);
