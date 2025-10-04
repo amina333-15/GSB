@@ -17,6 +17,13 @@
             </div>
 
             <div class="form-group">
+                <label class="col-md-3">Titre</label>
+                <div class="col-md-6">
+                    <input type="text" name="titre" value="{{ $frais->titre }}" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
                 <label class="col-md-3">Modification</label>
                 <div class="col-md-6">
             <input type="date" name="datemodification" class="form-control" 
