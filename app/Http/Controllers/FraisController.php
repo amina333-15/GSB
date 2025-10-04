@@ -83,7 +83,12 @@ class FraisController extends Controller
             $service->deleteFrais($id);
             return redirect()->route('listeFrais');
         } catch (Exception $exception) {
-            return view('error', compact('exception'));
+            if($exception->getCode() == 23000){
+                Session::put('erreur', $exception->getUserMessage());
+                return redirect(url('/editerFrais/'.$id));
+            }else{
+                return view('error', compact('exception'));
+            }
         }
     }
 }
