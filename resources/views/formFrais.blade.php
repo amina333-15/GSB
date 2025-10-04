@@ -40,14 +40,24 @@
                     <input type="number" name="valide" class="form-control" min="0" step="0.01" value="{{$frais->montantvalide}}">
                 </div>
             </div>
+
+            
             <div class="form-group">
-                <label class="col-md-3">Etat</label>
+                <label class="col-md-3">État</label>
                 <div class="col-md-6">
-                    <input type="number" name="etat" class="form-control" min="1" max="4" value="{{$frais->id_etat}}" required>
+                <select name="id_etat" class="form-control">
+                    @foreach($etats as $etat)
+                        <option value="{{ $etat->id_etat }}"
+                            {{ $etat->id_etat == $frais->id_etat ? 'selected' : '' }}>
+                            {{ $etat->lib_etat }}
+                        </option>
+                    @endforeach
+                </select>
                 </div>
             </div>
-            <hr>
 
+
+            
 <!----- Début partie validation--->
                 <div class="form-group">
                     <div class="col-md-12 col-md-offset-3">
