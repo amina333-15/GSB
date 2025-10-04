@@ -7,6 +7,7 @@ use App\Services\FraisService;
 use Illuminate\Http\Request;
 use App\Models\Frais;
 use App\Models\Etat;
+use Illuminate\Support\Facades\Session;
 
 class FraisController extends Controller
 {
@@ -70,6 +71,10 @@ class FraisController extends Controller
         try{
             $service = new FraisService();
             $frais = $service->getFrais($id);
+
+            $erreur = session()->get('erreur');    // Récupérer le message d'erreur s'il existe
+            session()->forget('erreur');    // Supprimer la variable de session pour éviter qu'elle reste
+
             return view('formFrais', compact('frais', 'etats'));
         } catch (Exception $exception) {
             return view('error', compact('exception'));
