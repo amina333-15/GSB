@@ -21,7 +21,7 @@
                 <td>{{ $frais->montantsaisi}} €</td>
                 <td>{{ $frais->nbjustificatifs}}</td>
                 <td>{{ $frais->montantvalide}} €</td>
-                <td>{{ $frais->id_etat }}</td>
+                <td>{{ $frais->libelle}}</td><!--lib_etat-->
 
                 <td><a href="{{url('/editerFrais/'.$frais->id_frais)}}">Modifier</a></td>
             </tr>
