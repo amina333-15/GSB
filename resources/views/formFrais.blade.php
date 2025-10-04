@@ -15,6 +15,16 @@
                     <input type="text" name="mois" class="form-control" maxlength="7" value="{{$frais->anneemois}}" placeholder="MM-AAAA" required>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-md-3">Modification</label>
+                <div class="col-md-6">
+            <input type="date" name="datemodification" class="form-control" 
+                value="{{ ($frais->datemodification)->format('Y-m-d') }}" 
+                required>                
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label class="col-md-3">Montant saisi</label>
                 <div class="col-md-6">
