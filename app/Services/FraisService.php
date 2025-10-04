@@ -48,4 +48,12 @@ class FraisService
         }
     }
 
+    public function getListEtats(){
+        try{
+            Etat::query()->get()
+        }catch{
+            
+        }
+    }
+
 }
