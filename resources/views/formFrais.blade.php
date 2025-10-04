@@ -87,6 +87,13 @@
                             Annuler
                         </button>
 
+                        @if(isset($frais) && $frais->id_frais)
+                            <a href="{{ url('/supprimerFrais/'.$frais->id_frais) }}"
+                               id="suppr" class="btn btn-danger"
+                               onclick="return confirm('Supprimer cette fiche de frais ?')">
+                                    Supprimer
+                            </a>
+                        @endif
                     </div>
                 </div>
            </div>
