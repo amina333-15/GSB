@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Services;
-
+use App\Exceptions\UserException;
+use App\Models\Etat;
 use App\Models\Frais;
+use Illuminate\Database\QueryException;
 
 
 class FraisService
@@ -11,7 +13,11 @@ class FraisService
 
         try
         {
-            $liste = Frais::query()->where('id_visiteur', '=', $id_visiteur)->get();
+            $liste = Frais::query()
+                ->select('frais.*', 'etat.lib_etat')
+                ->join('etat', 'etat.id_etat', '=', 'frais.id_etat')
+                ->where('id_visiteur', '=', $id_visiteur)
+                ->get();
         }
         catch(QueryException $exception)
         {
@@ -25,7 +31,7 @@ class FraisService
     public function getFrais($id){
         try
         {
-        $frais = Frais::query()->find($id);
+            $frais = Frais::query()->find($id);
         }
         catch(QueryException $exception)
         {
@@ -38,11 +44,34 @@ class FraisService
     public function saveFrais(Frais $frais){
         try
         {
-        $frais->save();
+            $frais->save();
         }
         catch(QueryException $exception)
         {
             $userMessage="Impossible d'accéder à la base de données.";
+            throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function getListEtats(){
+        try{
+            Etat::query()->get();
+    } catch (QueryException $exception) {
+            $userMessage="Impossible d'accéder à la base de données.";
+            throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function deleteFrais($id){
+        try{
+            $frais = Frais::query()->find($id);
+            $frais->delete();
+        } catch (QueryException $exception) {
+            if ($exception->getCode() == 23000) {
+                $userMessage="Impossible de supprimer une fiche avec des frais saisis.";
+            }else{
+                $userMessage="Erreur de suppression dans le base de données.";
+            }
             throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
         }
     }

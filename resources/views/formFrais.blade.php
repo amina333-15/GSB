@@ -15,6 +15,23 @@
                     <input type="text" name="mois" class="form-control" maxlength="7" value="{{$frais->anneemois}}" placeholder="MM-AAAA" required>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-md-3">Titre</label>
+                <div class="col-md-6">
+                    <input type="text" name="titre" value="{{ $frais->titre }}" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-3">Modification</label>
+                <div class="col-md-6">
+                    <input type="date" name="datemodification" class="form-control"
+                           value="{{ ($frais->datemodification)->format('Y-m-d') }}"
+                           required>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label class="col-md-3">Montant saisi</label>
                 <div class="col-md-6">
@@ -40,29 +57,46 @@
                     <input type="number" name="valide" class="form-control" min="0" step="0.01" value="{{$frais->montantvalide}}">
                 </div>
             </div>
+
+
             <div class="form-group">
-                <label class="col-md-3">Etat</label>
+                <label class="col-md-3">État</label>
                 <div class="col-md-6">
-                    <input type="number" name="etat" class="form-control" min="1" max="4" value="{{$frais->id_etat}}" required>
+                    <select name="id_etat" class="form-control">
+                        @foreach($etats as $etat)
+                            <option value="{{ $etat->id_etat }}"
+                                {{ $etat->id_etat == $frais->id_etat ? 'selected' : '' }}>
+                                {{ $etat->lib_etat }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
-            <hr>
 
-<!----- Début partie validation--->
-                <div class="form-group">
-                    <div class="col-md-12 col-md-offset-3">
-                        <button type="submit" class="btn btn-primary">
-                            Valider
-                        </button>
 
-                        <button type="button" class="btn btn-secondary"
-                                onclick="if (confirm('Annuler la saisie ?')) window.location='{{url('/')}}'">
-                            Annuler
-                        </button>
 
-                    </div>
+            <!----- Début partie validation--->
+            <div class="form-group">
+                <div class="col-md-12 col-md-offset-3">
+                    <button type="submit" class="btn btn-primary">
+                        Valider
+                    </button>
+
+                    <button type="button" class="btn btn-secondary"
+                            onclick="if (confirm('Annuler la saisie ?')) window.location='{{url('/')}}'">
+                        Annuler
+                    </button>
+
+                    @if(isset($frais) && $frais->id_frais)
+                        <a href="{{ url('/supprimerFrais/'.$frais->id_frais) }}"
+                           id="suppr" class="btn btn-danger"
+                           onclick="return confirm('Supprimer cette fiche de frais ?')">
+                            Supprimer
+                        </a>
+                    @endif
                 </div>
-           </div>
+            </div>
+        </div>
     </form>
 
     @if(isset($erreur))

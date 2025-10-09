@@ -10,7 +10,11 @@ class VisiteurController extends Controller
 {
     public function login()
     {
-        return view('formLogin');
+        try{
+            return view('formLogin');
+        }catch (Exception $exception){
+            return view('error', compact('exception'));
+        }
     }
 
 //
@@ -35,23 +39,29 @@ class VisiteurController extends Controller
 
     public function auth(Request $request)
     {
-        $login = $request->input("login");
-        $pwd = $request->input("pwd");
+        try{
+            $login = $request->input("login");
+            $pwd = $request->input("pwd");
 
-        $service = new VisiteurService();
-        if ($service->signIn($login, $pwd)) {
-            return redirect(url('/'));
-        } else {
-            $erreur = "Identifiant ou mot de passe incorrect";
-            return view('/formLogin', compact('erreur'));
+            $service = new VisiteurService();
+            if ($service->signIn($login, $pwd)) {
+                return redirect(url('/'));
+            } else {
+                $erreur = "Identifiant ou mot de passe incorrect";
+                return view('/formLogin', compact('erreur'));
+            }
+        }catch (Exception $exception){
+            return view('error', compact('exception'));
         }
     }
 
     public function logout()
     {
-        $service = new VisiteurService();
-        $service->signOut();
-        return redirect(url('/'));
-    }
-
-}
+        try {
+            $service = new VisiteurService();
+            $service->signOut();
+            return redirect(url('/'));
+        } catch (Exception $exception) {
+            return view('error', compact('exception'));
+        }
+    }}

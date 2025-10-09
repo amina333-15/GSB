@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Exceptions\UserException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Session;
 use App\Models\Visiteur;
+
 
 class VisiteurService
 {
@@ -16,12 +19,11 @@ class VisiteurService
             Session::put('visiteur', "$visiteur->prenom_visiteur $visiteur->nom_visiteur");
             return true;
         }
-    }
-catch(QueryException $exception)
-{
-$userMessage="Impossible d'accéder à la base de données.";
-throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
-}
+    } catch(QueryException $exception)
+        {
+            $userMessage="Impossible d'accéder à la base de données.";
+            throw new UserException($userMessage, $exception->getMessage(), $exception->getCode());
+        }
         return false;
     }
 
