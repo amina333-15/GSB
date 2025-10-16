@@ -77,15 +77,16 @@ class FraisController extends Controller
             $service = new FraisService();
             $frais = $service->getFrais($id);
 
-            // ✅ Correction de l'erreur format() sur string
+            // Correction de l'erreur format() sur string
             $frais->datemodification = Carbon::parse($frais->datemodification);
 
-            // ✅ Initialisation de $etats
+            // Initialisation de $etats
             $etats = Etat::all();
+            $erreur = Session::get('erreur');
+            Session::remove( 'erreur');
+//            session()->forget('erreur');
 
-            session()->forget('erreur');
-
-            return view('formFrais', compact('frais', 'etats'));
+            return view('formFrais', compact('frais', 'etats', 'erreur'));
         } catch (Exception $exception) {
             return view('error', compact('exception'));
         }
@@ -99,7 +100,7 @@ class FraisController extends Controller
             return redirect()->route('listFrais');
         } catch (Exception $exception) {
             if ($exception->getCode() == 23000) {
-                Session::put('erreur', $exception->getMessage());
+                Session::put('erreur', "Impossible de supprimer une fiche avec des frais saisis.");
                 return redirect(url('/editerFrais/' . $id));
             } else {
                 return view('error', compact('exception'));

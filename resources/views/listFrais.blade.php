@@ -14,6 +14,7 @@
             <th>Nb justificatifs</th>
             <th>Montant validé</th>
             <th>Etat</th>
+            <th><i class="bi bi-pencil"></i></th>
         </tr>
         </thead>
         @foreach($fiches as $frais)
@@ -26,7 +27,7 @@
                 <td>{{ $frais->montantvalide}} €</td>
                 <td>{{ $frais->lib_etat}}</td><!--lib_etat-->
 
-                <td><a href="{{url('/editerFrais/'.$frais->id_frais)}}">Modifier</a></td>
+                <td><a href="{{url('/editerFrais/'.$frais->id_frais)}}"><i class="bi bi-pencil"></i></a></td>
             </tr>
         @endforeach
     </table>

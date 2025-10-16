@@ -40,8 +40,8 @@
             </div>
             <!--------------------------------------------------------->
             <div class="col-md-12 col-md-offset-3">
-                <a href="" class="btn btn-info disabled"@if(!$frais->id_frais) disabled @endif>Frais hors forfait</a>
-                <a href="" class="btn btn-info disabled"@if(!$frais->id_frais) disabled @endif>Frais au forfait</a>
+                <a href="{{ url('/listerFraisHF/'.$frais->id_frais) }}" class="btn btn-primary"@if(!$frais->id_frais)  @endif>Frais hors forfait</a>
+                <a href="" class="btn btn-info disabled"@if(!$frais->id_frais)  @endif>Frais au forfait</a>
             </div>
             <!--------------------------------------------------------->
 
@@ -79,19 +79,19 @@
             <div class="form-group">
                 <div class="col-md-12 col-md-offset-3">
                     <button type="submit" class="btn btn-primary">
-                        Valider
+                        <i class="bi bi-check2"></i> Valider
                     </button>
 
                     <button type="button" class="btn btn-secondary"
                             onclick="if (confirm('Annuler la saisie ?')) window.location='{{url('/')}}'">
-                        Annuler
+                        <i class="bi bi-x-lg"></i> Annuler
                     </button>
 
                     @if(isset($frais) && $frais->id_frais)
                         <a href="{{ url('/supprimerFrais/'.$frais->id_frais) }}"
                            id="suppr" class="btn btn-danger"
                            onclick="return confirm('Supprimer cette fiche de frais ?')">
-                            Supprimer
+                            <i class="bi bi-trash"></i> Supprimer
                         </a>
                     @endif
                 </div>

@@ -5,7 +5,7 @@
     <form method="POST" action="{{url('/authentifier')}}">
         {{csrf_field() }}
 
-        <h1>Authentification</h1>
+        <h1><i class="bi bi-person-fill"></i> Authentification</h1>
         <div class="col-md-12 card card-body bg-light">
 
             <!----- Début partie text & mdp--->
@@ -29,12 +29,12 @@
                 <div class="form-group">
                     <div class="col-md-12 col-md-offset-3">
                         <button type="submit" class="btn btn-primary">
-                            Se connecter
+                            <i class="bi bi-check2"></i> Se connecter
                         </button>
 
                         <button type="button" class="btn btn-secondary"
                                 onclick="if (confirm('Annuler la saisie ?')) window.location='{{url('/')}}'">
-                            Annuler
+                            <i class="bi bi-x-lg"></i> Annuler
                         </button>
 
                     </div>
