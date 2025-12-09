@@ -107,4 +107,77 @@ class FraisController extends Controller
             }
         }
     }
+
+    public function addFrais_API($id)
+    {
+        $service = new FraisService();
+        $frais = $service->getFrais($id);
+
+        if (!$frais) {
+            return response()->json([
+                'Message' => 'Aucun frais trouvé pour cet ID',
+            ], 404);
+        }
+
+        $frais->save();
+
+        return response()->json([
+            'Message'  => 'Insertion réalisée',
+            'id_frais' => $frais->id_frais,
+        ], 201);
+    }
+
+
+    public function updateFrais_API(Request $request, $id)
+    {
+        $service = new FraisService();
+        $frais = $service->getFrais($id);
+
+        if (!$frais) {
+            return response()->json([
+                'Message' => 'Frais introuvable'
+            ], 404);
+        }
+
+        // Exemple de mise à jour des champs
+        $frais->lib_frais = $request->input('lib_frais', $frais->lib_frais);
+        $frais->montant   = $request->input('montant', $frais->montant);
+        $frais->id_etat   = $request->input('id_etat', $frais->id_etat);
+
+        $service->saveFrais($frais);
+
+        return response()->json([
+            'Message'  => 'Modification réalisée',
+            'id_frais' => $frais->id_frais,
+        ], 200);
+    }
+
+    public function removeFrais_API($id)
+    {
+        $service = new FraisService();
+        $frais = $service->getFrais($id);
+
+        if (!$frais) {
+            return response()->json([
+                'Message' => 'Frais introuvable'
+            ], 404);
+        }
+
+        $service->deleteFrais($id);
+
+        return response()->json([
+            'Message' => 'Suppression réalisée',
+            'id_frais' => $id,
+        ], 200);
+    }
+
+    public function listFrais_API($idVisiteur)
+    {
+        $service = new FraisService();
+        $liste = $service->getListFrais($idVisiteur);
+
+        return response()->json([
+            'Frais'   => $liste,
+        ], 200);
+    }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Frais;
 use App\Models\Visiteur;
+use App\Services\FraisService;
 use App\Services\VisiteurService;
 use Exception;
 use Illuminate\Http\Request;
@@ -127,5 +129,18 @@ public function unauthorizedAPI(Request $request)
 {
         return response()->json(['error'=>'accès non autorisé'],401);
 }
-}
+
+public function getFrais_API($id)
+{
+
+        $frais = Frais::query()->find($id);
+    if ($frais) {
+        return response()->json($frais);
+    }
+
+    return response()->json([
+        'message' => 'Frais non trouvé'
+    ], 404);
+}}
+
 
