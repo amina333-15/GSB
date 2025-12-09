@@ -111,17 +111,21 @@ class VisiteurController extends Controller
        } catch (Exception $exception) {
             return response()->json(['error'=>$exception->getMessage()],500);
         }
-
     }
 
     public function logoutAPI(Request $request)
     {
         try{
-            $request->user()->token()->delete();
-            return response()->json(['']);
+            $request->user()->tokens()->delete();
+            return response()->json(['status' => 'utilisateur déconnecté']);
+        }catch(Exception $exception){
+            return response()->json(['error'=>$exception->getMessage()],500);
         }
 
     }
-
+public function unauthorizedAPI(Request $request)
+{
+        return response()->json(['error'=>'accès non autorisé'],401);
+}
 }
 
