@@ -113,10 +113,7 @@ class FraisController extends Controller
         $service = new FraisService();
         $frais = $service->getFrais($id);
 
-        if (!$frais) {
-            return response()->json([
-                'Message' => 'Aucun frais trouvé pour cet ID',
-            ], 404);
+
         }
 
         $frais->save();
