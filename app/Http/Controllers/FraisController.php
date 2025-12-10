@@ -107,74 +107,140 @@ class FraisController extends Controller
             }
         }
     }
-
-    public function addFrais_API($id)
+    /* =========================
+           API : GET /api/frais/{idFrais}
+           ========================= */
+    public function getFrais_API($idFrais)
     {
-        $service = new FraisService();
-        $frais = $service->getFrais($id);
+        try {
+            $service = new FraisService();
+            $frais = $service->getFrais($idFrais);
 
+            if (!$frais) {
+                return response()->json(['error' => 'Frais introuvable'], 404);
+            }
 
+            $visiteur = Auth::user();
+            if ($frais->id_visiteur != $visiteur->id_visiteur) {
+                return response()->json(['error' => 'accès non autorisé'], 401);
+            }
+
+            return response()->json($frais, 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $frais->save();
-
-        return response()->json([
-            'Message'  => 'Insertion réalisée',
-            'id_frais' => $frais->id_frais,
-        ], 201);
     }
 
+    /* =========================
+       API : POST /api/frais/ajout
+       ========================= */
+    public function addFrais_API(Request $request)
+    {
+        try {
+            $visiteur = Auth::user();
+            if ($request->id_visiteur != $visiteur->id_visiteur) {
+                return response()->json(['error' => 'accès non autorisé'], 401);
+            }
 
+            $frais = new Frais();
+            $frais->id_visiteur = $visiteur->id_visiteur;
+            $frais->anneemois = $request->input('anneemois');
+            $frais->nbjustificatifs = $request->input('nbjustificatifs');
+            $frais->datemodification = Carbon::now();
+            $frais->id_etat = 1; // état par défaut
+
+            $service = new FraisService();
+            $service->saveFrais($frais);
+
+            return response()->json([
+                'message' => 'Insertion réalisée',
+                'id_frais' => $frais->id_frais,
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /* =========================
+       API : POST /api/frais/modif
+       ========================= */
     public function updateFrais_API(Request $request, $id)
     {
-        $service = new FraisService();
-        $frais = $service->getFrais($id);
+        try {
+            $service = new FraisService();
+            $frais = $service->getFrais($id);
 
-        if (!$frais) {
+            if (!$frais) {
+                return response()->json(['error' => 'Frais introuvable'], 404);
+            }
+
+            $visiteur = Auth::user();
+            if ($frais->id_visiteur != $visiteur->id_visiteur) {
+                return response()->json(['error' => 'accès non autorisé'], 401);
+            }
+
+            $frais->anneemois = $request->input('anneemois', $frais->anneemois);
+            $frais->nbjustificatifs = $request->input('nbjustificatifs', $frais->nbjustificatifs);
+            $frais->montantvalide = $request->input('montantvalide', $frais->montantvalide);
+            $frais->id_etat = $request->input('id_etat', $frais->id_etat);
+
+            $service->saveFrais($frais);
+
             return response()->json([
-                'Message' => 'Frais introuvable'
-            ], 404);
+                'message' => 'Modification réalisée',
+                'id_frais' => $frais->id_frais,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // Exemple de mise à jour des champs
-        $frais->lib_frais = $request->input('lib_frais', $frais->lib_frais);
-        $frais->montant   = $request->input('montant', $frais->montant);
-        $frais->id_etat   = $request->input('id_etat', $frais->id_etat);
-
-        $service->saveFrais($frais);
-
-        return response()->json([
-            'Message'  => 'Modification réalisée',
-            'id_frais' => $frais->id_frais,
-        ], 200);
     }
 
+    /* =========================
+       API : DELETE /api/frais/suppr
+       ========================= */
     public function removeFrais_API($id)
     {
-        $service = new FraisService();
-        $frais = $service->getFrais($id);
+        try {
+            $service = new FraisService();
+            $frais = $service->getFrais($id);
 
-        if (!$frais) {
+            if (!$frais) {
+                return response()->json(['error' => 'Frais introuvable'], 404);
+            }
+
+            $visiteur = Auth::user();
+            if ($frais->id_visiteur != $visiteur->id_visiteur) {
+                return response()->json(['error' => 'accès non autorisé'], 401);
+            }
+
+            $service->deleteFrais($id);
+
             return response()->json([
-                'Message' => 'Frais introuvable'
-            ], 404);
+                'message' => 'Suppression réalisée',
+                'id_frais' => $id,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $service->deleteFrais($id);
-
-        return response()->json([
-            'Message' => 'Suppression réalisée',
-            'id_frais' => $id,
-        ], 200);
     }
 
+    /* =========================
+       API : GET /api/frais/liste/{idVisiteur}
+       ========================= */
     public function listFrais_API($idVisiteur)
     {
-        $service = new FraisService();
-        $liste = $service->getListFrais($idVisiteur);
+        try {
+            $visiteur = Auth::user();
+            if ($idVisiteur != $visiteur->id_visiteur) {
+                return response()->json(['error' => 'accès non autorisé'], 401);
+            }
 
-        return response()->json([
-            'Frais'   => $liste,
-        ], 200);
+            $service = new FraisService();
+            $liste = $service->getListFrais($idVisiteur);
+
+            return response()->json($liste, 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
