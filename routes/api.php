@@ -17,10 +17,12 @@ Route::get('/visiteur/logout', [VisiteurController::class, "logoutAPI"])->middle
 
 Route::get('/visiteur/unauthorized', [VisiteurController::class, "unauthorizedAPI"])->name('login');
 
+
 Route::get('/frais/{idFrais}', [FraisController::class, "getFrais_API"])->middleware('auth:sanctum');
 Route::post('/frais/ajout', [FraisController::class, "addFrais_API"])->middleware('auth:sanctum');
 Route::post('/frais/modif', [FraisController::class, "updateFrais_API"])->middleware('auth:sanctum');
 Route::delete('/frais/suppr', [FraisController::class, "removeFrais_API"])->middleware('auth:sanctum');
+
 Route::get('/frais/liste/{idVisiteur}', [FraisController::class, "listFrais_API"])->middleware('auth:sanctum');
 
 

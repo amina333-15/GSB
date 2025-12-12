@@ -9,6 +9,7 @@ use App\Models\Frais;
 use App\Models\Etat;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 
 class FraisController extends Controller
@@ -164,9 +165,15 @@ class FraisController extends Controller
     /* =========================
        API : POST /api/frais/modif
        ========================= */
-    public function updateFrais_API(Request $request, $id)
+    public function updateFrais_API(Request $request)
     {
         try {
+            $id = $request->input('id_frais');
+
+            if (!$id) {
+                return response()->json(['error' => 'id_frais manquant'], 400);
+            }
+
             $service = new FraisService();
             $frais = $service->getFrais($id);
 
@@ -190,17 +197,21 @@ class FraisController extends Controller
                 'message' => 'Modification réalisée',
                 'id_frais' => $frais->id_frais,
             ], 200);
+
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
+
     /* =========================
        API : DELETE /api/frais/suppr
        ========================= */
-    public function removeFrais_API($id)
+    public function removeFrais_API(Request $request)
     {
         try {
+            $id = $request->input('id_frais');
+
             $service = new FraisService();
             $frais = $service->getFrais($id);
 
