@@ -15,9 +15,9 @@ class VisiteurController extends Controller
 {
     public function login()
     {
-        try{
+        try {
             return view('formLogin');
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return view('error', compact('exception'));
         }
     }
@@ -44,7 +44,7 @@ class VisiteurController extends Controller
 
     public function auth(Request $request)
     {
-        try{
+        try {
             $login = $request->input("login");
             $pwd = $request->input("pwd");
 
@@ -55,7 +55,7 @@ class VisiteurController extends Controller
                 $erreur = "Identifiant ou mot de passe incorrect";
                 return view('/formLogin', compact('erreur'));
             }
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return view('error', compact('exception'));
         }
     }
@@ -74,13 +74,13 @@ class VisiteurController extends Controller
 
     public function initPasswordAPI(Request $request)
     {
-        try{
-            $request->validate(['pwd_visiteur'=>'required|min:3']);
+        try {
+            $request->validate(['pwd_visiteur' => 'required|min:3']);
             $hash = bcrypt($request->input('pwd_visiteur'));
-            Visiteur::query()->update(['pwd_visiteur'=>$hash]);
-            return response()->json(['status'=>'mot de passe réinitialisés']);
-        }catch (\Exception $exception){
-            return response()->json(['error'=>$exception->getMessage()],500);
+            Visiteur::query()->update(['pwd_visiteur' => $hash]);
+            return response()->json(['status' => 'mot de passe réinitialisés']);
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
 
@@ -88,59 +88,87 @@ class VisiteurController extends Controller
     {
         try {
             $request->validate([
-                'login'=>'required',
-                'pwd'=>'required'
+                'login' => 'required',
+                'pwd' => 'required'
             ]);
             $login = $request->input("login");
             $pwd = $request->input("pwd");
-            $identifiants = ["login_visiteur"=>$login, "password" =>$pwd];
+            $identifiants = ["login_visiteur" => $login, "password" => $pwd];
             if (!Auth::attempt($identifiants)) {
-                return response()->json(['error'=>'Identifiant incorrect'],401);
+                return response()->json(['error' => 'Identifiant incorrect'], 401);
             }
             //creation token et retour informations
             $visiteur = $request->user();
             $token = $visiteur->CreateToken('authToken')->plainTextToken;
             return response()->json([
-               'token'=>$token,
-               'token_type'=>'Bearer',
-               'visiteur'=>[
-                   'id_visiteur'=>$visiteur->id_visiteur,
-                   'nom_visiteur'=>$visiteur->nom_visiteur,
-                   'prenom_visiteur'=>$visiteur->prenom_visiteur,
-                   'type_visiteur'=>$visiteur->type_visiteur,
-               ]
+                'token' => $token,
+                'token_type' => 'Bearer',
+                'visiteur' => [
+                    'id_visiteur' => $visiteur->id_visiteur,
+                    'nom_visiteur' => $visiteur->nom_visiteur,
+                    'prenom_visiteur' => $visiteur->prenom_visiteur,
+                    'type_visiteur' => $visiteur->type_visiteur,
+                ]
             ]);
-       } catch (Exception $exception) {
-            return response()->json(['error'=>$exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
     }
 
     public function logoutAPI(Request $request)
     {
-        try{
+        try {
             $request->user()->tokens()->delete();
             return response()->json(['status' => 'utilisateur déconnecté']);
-        }catch(Exception $exception){
-            return response()->json(['error'=>$exception->getMessage()],500);
+        } catch (Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 500);
         }
 
     }
-public function unauthorizedAPI(Request $request)
-{
-        return response()->json(['error'=>'accès non autorisé'],401);
-}
 
-public function getFrais_API($id)
-{
-
-        $frais = Frais::query()->find($id);
-    if ($frais) {
-        return response()->json($frais);
+    public function unauthorizedAPI(Request $request)
+    {
+        return response()->json(['error' => 'accès non autorisé'], 401);
     }
 
-    return response()->json([
-        'message' => 'Frais non trouvé'
-    ], 404);
-}}
+    public function getFrais_API($id)
+    {
+
+        $frais = Frais::query()->find($id);
+        if ($frais) {
+            return response()->json($frais);
+        }
+
+        return response()->json([
+            'message' => 'Frais non trouvé'
+        ], 404);
+    }
 
 
+    public function searchForm()
+    {
+        return view('recherche');
+    }
+
+    public function search(Request $request)
+    {
+        $term = $request->input('recherche');
+
+        $visiteurs = Visiteur::where('nom_visiteur', 'like', "%$term%")
+            ->orWhereHas('affectations.secteur', function ($q) use ($term) {
+                $q->where('lib_secteur', 'like', "%$term%");
+            })
+            ->orWhereHas('laboratoire', function ($q) use ($term) {
+                $q->where('nom_laboratoire', 'like', "%$term%");
+            })
+            ->get();
+
+        if ($visiteurs->isEmpty()) {
+            return view('visiteurs.recherche', ['erreur' => 'Aucun visiteur trouvé']);
+        }
+
+        return view('visiteurs.resultats', compact('visiteurs'));
+    }
+
+
+}

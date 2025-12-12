@@ -25,3 +25,7 @@ Route::get('/ajouterFraisHF/{id}', [FraisHFController::class, 'addFraisHF'])->na
 Route::get('/editerFraisHF/{idHF}', [FraisHFController::class, 'editFraisHF'])->name('editFraisHF');
 Route::post('/validerFraisHF', [FraisHFController::class, 'validFraisHF'])->name('validFraisHF');
 Route::get('/supprimerFraisHF/{idHF}', [FraisHFController::class, 'removeFraisHF'])->name('removeFraisHF');
+
+Route::get('/rechercherVisiteur', [VisiteurController::class, 'searchForm']);
+Route::post('/rechercherVisiteur', [VisiteurController::class, 'search']);
+

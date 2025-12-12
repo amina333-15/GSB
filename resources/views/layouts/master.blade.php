@@ -30,10 +30,16 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url('/ajouterFrais') }}"><i class="bi bi-plus-circle-fill"></i> Ajouter</a>
                         </li>
+                        <li>
+                            <a class="nav-link" href="{{ url('/rechercherVisiteur') }}"><i class="bi bi-plus-circle-fill"></i> Rechercher Visiteur</a>
+                        </li>
+
+
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/deconnecter') }}">( <i class="bi bi-person-fill-check"> {{session('visiteur')}} </i>)  <i class="bi bi-power"></i> Se déconnecter</a>
+                            <a class="nav-link" href="{{ url('/deconnecter') }}">( <i class="bi bi-person-fill-check"> {{session('visiteur')}} </i>)
+                                <i class="bi bi-power"></i> Se déconnecter</a>
                         </li>
                     </ul>
                 @else
