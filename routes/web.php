@@ -29,3 +29,7 @@ Route::get('/supprimerFraisHF/{idHF}', [FraisHFController::class, 'removeFraisHF
 Route::get('/rechercherVisiteur', [VisiteurController::class, 'searchForm']);
 Route::post('/rechercherVisiteur', [VisiteurController::class, 'search']);
 
+Route::get('/visiteur/{id}/affecter-region', [VisiteurController::class, 'formAffectationRegion']);
+Route::post('/visiteur/{id}/affecter-region', [VisiteurController::class, 'affecterRegion']);
+Route::get('/visiteur/{id}/supprimer-affectation', [VisiteurController::class, 'supprimerAffectation']);
+

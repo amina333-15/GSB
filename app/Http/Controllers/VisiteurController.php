@@ -154,20 +154,85 @@ class VisiteurController extends Controller
     {
         $term = $request->input('recherche');
 
-        $visiteurs = Visiteur::where('nom_visiteur', 'like', "%$term%")
-            ->orWhereHas('affectations.secteur', function ($q) use ($term) {
-                $q->where('lib_secteur', 'like', "%$term%");
-            })
-            ->orWhereHas('laboratoire', function ($q) use ($term) {
-                $q->where('nom_laboratoire', 'like', "%$term%");
-            })
+        // Sous-requête : on récupère les visiteurs qui matchent le terme
+        $matchingIds = Visiteur::query()
+            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->leftJoin('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
+            ->leftJoin('region', 'travailler.id_region', '=', 'region.id_region')
+            ->leftJoin('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->where('visiteur.nom_visiteur', 'like', "%$term%")
+            ->orWhere('laboratoire.nom_laboratoire', 'like', "%$term%")
+            ->orWhere('secteur.lib_secteur', 'like', "%$term%")
+            ->pluck('visiteur.id_visiteur'); // liste des IDs trouvés
+
+        // Requête finale : on récupère les infos propres
+        $visiteurs = Visiteur::query()
+            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->leftJoin('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
+            ->leftJoin('region', 'travailler.id_region', '=', 'region.id_region')
+            ->leftJoin('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->whereIn('visiteur.id_visiteur', $matchingIds)
+            ->select(
+                'visiteur.nom_visiteur',
+                'visiteur.prenom_visiteur',
+                'laboratoire.nom_laboratoire',
+                'secteur.lib_secteur',
+                'region.nom_region'
+            )
+            ->distinct()
             ->get();
 
         if ($visiteurs->isEmpty()) {
-            return view('visiteurs.recherche', ['erreur' => 'Aucun visiteur trouvé']);
+            return view('recherche', ['erreur' => 'Aucun visiteur trouvé']);
         }
 
-        return view('visiteurs.resultats', compact('visiteurs'));
+        return view('resultats', compact('visiteurs'));
+    }
+
+    public function affecterRegion(Request $request, $idVisiteur)
+    {
+        \DB::table('travailler')->insert([
+            'id_visiteur' => $idVisiteur,
+            'id_region' => $request->id_region,
+            'jjmmaa' => now(),
+            'role_visiteur' => 'Visiteur'
+        ]);
+
+        return back()->with('success', 'Région affectée avec succès');
+    }
+
+    public function modifierRegion(Request $request, $idVisiteur)
+    {
+        \DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->orderBy('jjmmaa', 'desc')
+            ->limit(1)
+            ->update([
+                'id_region' => $request->id_region
+            ]);
+
+        return back()->with('success', 'Région modifiée avec succès');
+    }
+
+    public function supprimerAffectation($idVisiteur)
+    {
+        \DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->delete();
+
+        return back()->with('success', 'Affectation supprimée');
+    }
+
+
+    public function formAffectationRegion($idVisiteur)
+    {
+        $visiteur = DB::table('visiteur')
+            ->where('id_visiteur', $idVisiteur)
+            ->first();
+
+        $regions = DB::table('region')->get();
+
+        return view('formAffectationRegion', compact('visiteur', 'regions'));
     }
 
 
