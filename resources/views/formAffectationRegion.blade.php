@@ -2,33 +2,57 @@
 
 @section('content')
 
-    <h1>Affectation d'une région</h1>
+    <h2>
+        @if($mode === 'modif')
+            Modification d'une
+        @else
+            Nouvelle
+        @endif
+        affectation pour : {{ $visiteur->prenom_visiteur }} {{ $visiteur->nom_visiteur }}
+    </h2>
 
-    <h4>{{ $visiteur->prenom_visiteur }} {{ $visiteur->nom_visiteur }}</h4>
-
-    <form method="POST" action="{{ url('/visiteur/'.$visiteur->id_visiteur.'/affecter-region') }}">
+    <form method="POST"
+          action="@if($mode === 'modif')
+                    {{ url('/visiteur/'.$visiteur->id_visiteur.'/modifier-region/'.$regionActuelle->id_region) }}
+                  @else
+                    {{ url('/visiteur/'.$visiteur->id_visiteur.'/affecter-region') }}
+                  @endif">
         @csrf
 
         <div class="mb-3">
             <label class="form-label">Choisir une région</label>
-            <select name="id_region" class="form-control">
+            <select name="id_region" class="form-control" required>
                 @foreach($regions as $r)
-                    <option value="{{ $r->id_region }}">{{ $r->nom_region }}</option>
+                    <option value="{{ $r->id_region }}"
+                            @if($mode === 'modif' && $r->id_region == $regionActuelle->id_region) selected @endif>
+                        {{ $r->nom_region }} — Secteur : {{ $r->lib_secteur }}
+                    </option>
                 @endforeach
             </select>
         </div>
 
+        {{-- Champ Date --}}
+        <div class="mb-3">
+            <label class="form-label">Date d'affectation</label>
+            <input type="date" name="jjmmaa" class="form-control"
+                   value="@if($mode === 'modif') {{ $regionActuelle->jjmmaa }} @endif"
+                   required>
+        </div>
+
         <button type="submit" class="btn btn-primary">
-            Affecter / Modifier
+            @if($mode === 'modif') Modifier @else Valider @endif
         </button>
 
-        <a href="{{ url('/visiteur/'.$visiteur->id_visiteur.'/supprimer-affectation') }}"
-           class="btn btn-danger"
-           onclick="return confirm('Supprimer l’affectation ?')">
-            Supprimer
-        </a>
+        @if($mode === 'modif')
+            <a href="{{ url('/visiteur/'.$visiteur->id_visiteur.'/supprimer-region/'.$regionActuelle->id_region) }}"
+               class="btn btn-danger"
+               onclick="return confirm('Supprimer cette affectation ?')">
+                Supprimer
+            </a>
+        @endif
 
-        <a href="{{ url('/rechercherVisiteur') }}" class="btn btn-secondary">
+        <a href="{{ url('/visiteur/'.$visiteur->id_visiteur.'/listRegion') }}"
+           class="btn btn-secondary">
             Annuler
         </a>
     </form>

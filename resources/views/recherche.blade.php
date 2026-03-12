@@ -2,7 +2,32 @@
 
 @section('content')
 
-    <h1>Recherche d'un visiteur</h1>
+    <h1><i class="bi bi-search"></i> Recherche d'un visiteur</h1>
+
+    <hr>
+
+    <h3>Ou rechercher des visiteurs par région</h3>
+
+    <form method="GET" action="{{ url('/region') }}">
+        <div class="mb-3">
+            <label class="form-label">Choisir une région</label>
+
+            @php
+                $regions = DB::table('region')->get();
+            @endphp
+
+            <select name="idRegion" class="form-control" required>
+                <option value="">-- Sélectionner une région --</option>
+                @foreach($regions as $r)
+                    <option value="{{ $r->id_region }}">{{ $r->nom_region }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-search"></i> Rechercher
+        </button>
+    </form>
 
     <form method="POST" action="{{ url('/rechercherVisiteur') }}">
         @csrf

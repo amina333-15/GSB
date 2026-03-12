@@ -31,9 +31,14 @@
                             <a class="nav-link" href="{{ url('/ajouterFrais') }}"><i class="bi bi-plus-circle-fill"></i> Ajouter</a>
                         </li>
                         <li>
-                            <a class="nav-link" href="{{ url('/rechercherVisiteur') }}"><i class="bi bi-plus-circle-fill"></i> Rechercher Visiteur</a>
+                            <a class="nav-link" href="{{ url('/rechercherVisiteur') }}"><i class="bi bi-search"></i> Rechercher Visiteur</a>
                         </li>
 
+                        <li>
+                            <a class="nav-link" href="{{ url('/top10Laboratoires') }}">
+                                <i class="bi bi-bar-chart-line"></i> Top 10 des laboratoires
+                            </a>
+                        </li>
 
                     </ul>
                     <ul class="navbar-nav ms-auto">

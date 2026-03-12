@@ -10,6 +10,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+
 
 class VisiteurController extends Controller
 {
@@ -160,26 +162,24 @@ class VisiteurController extends Controller
             ->leftJoin('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
             ->leftJoin('region', 'travailler.id_region', '=', 'region.id_region')
             ->leftJoin('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
-            ->where('visiteur.nom_visiteur', 'like', "%$term%")
-            ->orWhere('laboratoire.nom_laboratoire', 'like', "%$term%")
-            ->orWhere('secteur.lib_secteur', 'like', "%$term%")
-            ->pluck('visiteur.id_visiteur'); // liste des IDs trouvés
+            ->where(function ($q) use ($term) {
+                $q->where('visiteur.nom_visiteur', 'like', "%$term%")
+                    ->orWhere('laboratoire.nom_laboratoire', 'like', "%$term%")
+                    ->orWhere('secteur.lib_secteur', 'like', "%$term%");
+            })
+            ->distinct()
+            ->pluck('visiteur.id_visiteur');
 
-        // Requête finale : on récupère les infos propres
+        // Requête finale : on récupère les infos propres (1 ligne par visiteur)
         $visiteurs = Visiteur::query()
             ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
-            ->leftJoin('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
-            ->leftJoin('region', 'travailler.id_region', '=', 'region.id_region')
-            ->leftJoin('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
             ->whereIn('visiteur.id_visiteur', $matchingIds)
             ->select(
+                'visiteur.id_visiteur',
                 'visiteur.nom_visiteur',
                 'visiteur.prenom_visiteur',
-                'laboratoire.nom_laboratoire',
-                'secteur.lib_secteur',
-                'region.nom_region'
+                'laboratoire.nom_laboratoire'
             )
-            ->distinct()
             ->get();
 
         if ($visiteurs->isEmpty()) {
@@ -189,40 +189,30 @@ class VisiteurController extends Controller
         return view('resultats', compact('visiteurs'));
     }
 
-    public function affecterRegion(Request $request, $idVisiteur)
+    public function listRegion($id)
     {
-        \DB::table('travailler')->insert([
-            'id_visiteur' => $idVisiteur,
-            'id_region' => $request->id_region,
-            'jjmmaa' => now(),
-            'role_visiteur' => 'Visiteur'
-        ]);
+        // Récupérer le visiteur
+        $visiteur = DB::table('visiteur')
+            ->where('id_visiteur', $id)
+            ->first();
 
-        return back()->with('success', 'Région affectée avec succès');
-    }
-
-    public function modifierRegion(Request $request, $idVisiteur)
-    {
-        \DB::table('travailler')
-            ->where('id_visiteur', $idVisiteur)
+        // Récupérer les régions + secteurs du visiteur
+        $regions = DB::table('travailler')
+            ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->join('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->where('travailler.id_visiteur', $id)
             ->orderBy('jjmmaa', 'desc')
-            ->limit(1)
-            ->update([
-                'id_region' => $request->id_region
-            ]);
+            ->select(
+                'region.nom_region',
+                'secteur.lib_secteur',
+                'travailler.jjmmaa',
+                'travailler.role_visiteur',
+                'region.id_region'
+            )
+            ->get();
 
-        return back()->with('success', 'Région modifiée avec succès');
+        return view('listRegion', compact('visiteur', 'regions'));
     }
-
-    public function supprimerAffectation($idVisiteur)
-    {
-        \DB::table('travailler')
-            ->where('id_visiteur', $idVisiteur)
-            ->delete();
-
-        return back()->with('success', 'Affectation supprimée');
-    }
-
 
     public function formAffectationRegion($idVisiteur)
     {
@@ -230,10 +220,148 @@ class VisiteurController extends Controller
             ->where('id_visiteur', $idVisiteur)
             ->first();
 
-        $regions = DB::table('region')->get();
+        $regions = DB::table('region')
+            ->join('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->select('region.id_region', 'region.nom_region', 'secteur.lib_secteur')
+            ->get();
 
-        return view('formAffectationRegion', compact('visiteur', 'regions'));
+        return view('formAffectationRegion', [
+            'visiteur' => $visiteur,
+            'regions' => $regions,
+            'mode' => 'ajout',
+            'regionActuelle' => null
+        ]);
     }
+
+
+    public function affecterRegion(Request $request, $idVisiteur)
+    {
+        DB::table('travailler')->insert([
+            'id_visiteur' => $idVisiteur,
+            'id_region' => $request->id_region,
+            'jjmmaa' => now(),
+            'role_visiteur' => 'Visiteur'
+        ]);
+
+        return redirect('/visiteur/'.$idVisiteur.'/listRegion')
+            ->with('success', 'Région affectée avec succès');
+    }
+
+    public function supprimerAffectation($idVisiteur)
+    {
+        DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->delete();
+
+        return redirect('/visiteur/'.$idVisiteur.'/listRegion')
+            ->with('success', 'Affectation supprimée');
+    }
+
+    public function formModifierRegion($idVisiteur, $idRegion)
+    {
+        // Récupérer le visiteur
+        $visiteur = DB::table('visiteur')
+            ->where('id_visiteur', $idVisiteur)
+            ->first();
+
+        // Récupérer toutes les régions possibles
+        $regions = DB::table('region')
+            ->join('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->select('region.id_region', 'region.nom_region', 'secteur.lib_secteur')
+            ->get();
+
+        // Récupérer l'affectation actuelle
+        $regionActuelle = DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->where('id_region', $idRegion)
+            ->first();
+
+        return view('formAffectationRegion', [
+            'visiteur' => $visiteur,
+            'regions' => $regions,
+            'mode' => 'modif',
+            'regionActuelle' => $regionActuelle
+        ]);
+    }
+
+    public function modifierRegion(Request $request, $idVisiteur, $idRegion)
+    {
+        $affectation = DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->where('id_region', $idRegion)
+            ->first();
+
+        DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->where('id_region', $idRegion)
+            ->where('jjmmaa', $affectation->jjmmaa)
+            ->update([
+                'id_region' => $request->id_region,
+                'jjmmaa' => $request->jjmmaa
+            ]);
+
+
+        return redirect('/visiteur/'.$idVisiteur.'/listRegion')
+            ->with('success', 'Affectation modifiée avec succès');
+    }
+
+    public function supprimerRegion($idVisiteur, $idRegion)
+    {
+        DB::table('travailler')
+            ->where('id_visiteur', $idVisiteur)
+            ->where('id_region', $idRegion)
+            ->delete();
+
+        return redirect('/visiteur/'.$idVisiteur.'/listRegion')
+            ->with('success', 'Affectation supprimée');
+    }
+
+    public function visiteursParRegion($idRegion)
+    {
+        $region = DB::table('region')
+            ->where('id_region', $idRegion)
+            ->first();
+
+        $visiteurs = DB::table('visiteur')
+            ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
+            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->leftJoin('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
+            ->where('travailler.id_region', $idRegion)
+            ->select(
+                'visiteur.*',
+                'laboratoire.nom_laboratoire',
+                'secteur.lib_secteur'
+            )
+            ->get();
+
+        return view('visiteursParRegion', compact('region', 'visiteurs'));
+    }
+
+    public function choisirRegion()
+    {
+        $regions = DB::table('region')->get();
+        return view('choisirRegion', compact('regions'));
+    }
+
+    public function top10Laboratoires()
+    {
+        $top10 = DB::table('activite_compl')
+            ->join('realiser', 'activite_compl.id_activite_compl', '=', 'realiser.id_activite_compl')
+            ->join('visiteur', 'realiser.id_visiteur', '=', 'visiteur.id_visiteur')
+            ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->select(
+                'laboratoire.nom_laboratoire',
+                DB::raw('COUNT(activite_compl.id_activite_compl) as total_activites')
+            )
+            ->groupBy('laboratoire.nom_laboratoire')
+            ->orderByDesc('total_activites')
+            ->limit(10)
+            ->get();
+
+        return view('top10Laboratoires', compact('top10'));
+    }
+
+
 
 
 }

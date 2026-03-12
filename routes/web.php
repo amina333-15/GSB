@@ -33,3 +33,19 @@ Route::get('/visiteur/{id}/affecter-region', [VisiteurController::class, 'formAf
 Route::post('/visiteur/{id}/affecter-region', [VisiteurController::class, 'affecterRegion']);
 Route::get('/visiteur/{id}/supprimer-affectation', [VisiteurController::class, 'supprimerAffectation']);
 
+Route::get('/visiteur/{id}/listRegion', [VisiteurController::class, 'listRegion']);
+
+Route::get('/visiteur/{id}/modifier-region/{idRegion}', [VisiteurController::class, 'formModifierRegion']);
+Route::post('/visiteur/{id}/modifier-region/{idRegion}', [VisiteurController::class, 'modifierRegion']);
+
+Route::get('/visiteur/{id}/supprimer-region/{idRegion}', [VisiteurController::class, 'supprimerRegion']);
+
+Route::get('/region/{idRegion}/visiteurs', [VisiteurController::class, 'visiteursParRegion']);
+Route::get('/visiteursParRegion', [VisiteurController::class, 'choisirRegion']);
+Route::get('/choisirRegion', [VisiteurController::class, 'choisirRegion']);
+
+Route::get('/region', function (Illuminate\Http\Request $request) {
+    return redirect('/region/'.$request->idRegion.'/visiteurs');
+});
+
+Route::get('/top10Laboratoires', [VisiteurController::class, 'top10Laboratoires']);
