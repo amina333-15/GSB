@@ -67,14 +67,31 @@ class FraisHFController extends Controller
         return redirect()->route('listFraisHF', ['id' => $id]);
     }
 
-    public function removeFraisHF($idHF)
-    {
+//    public function removeFraisHF($idHF)
+//    {
 //        $fraisHF = (new FraisHFService())->getFraisHF($idHF);
 //        $id = $fraisHF->id_frais;
 //
 //        (new FraisHFService())->deleteFraisHF($idHF);
 //
 //        return redirect()->route('listFraisHF', ['id' => $id]);
+//    }
+
+    public function removeFraisHF($idHF)
+    {
+        $service = new FraisHFService();
+        $fraisHF = $service->getFraisHF($idHF);
+
+        if (!$fraisHF) {
+            return redirect()->back()->with('erreur', 'Frais hors forfait introuvable.');
+        }
+
+        $idFrais = $fraisHF->id_frais;
+
+        $service->deleteFraisHF($idHF);
+
+        return redirect()->route('listFraisHF', ['id' => $idFrais]);
     }
+
 
 }

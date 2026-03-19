@@ -20,7 +20,10 @@ Route::post('/validerFrais', [FraisController::class, 'validFrais']);
 Route::get('/supprimerFrais/{id}', [FraisController::class, 'removeFrais'])->name('supprimerFrais');
 
 
-Route::get('/listerFraisHF/{id}', [FraisHFController::class, 'listFraisHF']);
+//Route::get('/listerFraisHF/{id}', [FraisHFController::class, 'listFraisHF']);
+Route::get('/listerFraisHF/{id}', [FraisHFController::class, 'listFraisHF'])
+    ->name('listFraisHF');
+
 Route::get('/ajouterFraisHF/{id}', [FraisHFController::class, 'addFraisHF'])->name('addFraisHF');
 Route::get('/editerFraisHF/{idHF}', [FraisHFController::class, 'editFraisHF'])->name('editFraisHF');
 Route::post('/validerFraisHF', [FraisHFController::class, 'validFraisHF'])->name('validFraisHF');
