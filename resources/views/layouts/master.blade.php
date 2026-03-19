@@ -25,10 +25,10 @@
                 @if(session('id_visiteur'))
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/listerFrais') }}"><i class="bi bi-text-paragraph"></i> Lister</a>
+                            <a class="nav-link" href="{{ url('/listerFrais') }}"><i class="bi bi-text-paragraph"></i> Lister les frais</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/ajouterFrais') }}"><i class="bi bi-plus-circle-fill"></i> Ajouter</a>
+                            <a class="nav-link" href="{{ url('/ajouterFrais') }}"><i class="bi bi-plus-circle-fill"></i> Ajouter des frais</a>
                         </li>
                         <li>
                             <a class="nav-link" href="{{ url('/rechercherVisiteur') }}"><i class="bi bi-search"></i> Rechercher Visiteur</a>
