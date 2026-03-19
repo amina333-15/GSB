@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 
 
+
+
 class VisiteurController extends Controller
 {
     public function login()
@@ -156,31 +158,24 @@ class VisiteurController extends Controller
     {
         $term = $request->input('recherche');
 
-        // Sous-requête : on récupère les visiteurs qui matchent le terme
-        $matchingIds = Visiteur::query()
-            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
-            ->leftJoin('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
-            ->leftJoin('region', 'travailler.id_region', '=', 'region.id_region')
-            ->leftJoin('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
-            ->where(function ($q) use ($term) {
-                $q->where('visiteur.nom_visiteur', 'like', "%$term%")
-                    ->orWhere('laboratoire.nom_laboratoire', 'like', "%$term%")
-                    ->orWhere('secteur.lib_secteur', 'like', "%$term%");
-            })
-            ->distinct()
-            ->pluck('visiteur.id_visiteur');
-
-        // Requête finale : on récupère les infos propres (1 ligne par visiteur)
         $visiteurs = Visiteur::query()
-            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
-            ->whereIn('visiteur.id_visiteur', $matchingIds)
+            ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->join('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
+            ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
+            ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->where('visiteur.nom_visiteur', 'like', "%$term%")
+            ->orWhere('laboratoire.nom_laboratoire', 'like', "%$term%")
+            ->orWhere('secteur.lib_secteur', 'like', "%$term%")
             ->select(
                 'visiteur.id_visiteur',
                 'visiteur.nom_visiteur',
                 'visiteur.prenom_visiteur',
-                'laboratoire.nom_laboratoire'
+                'laboratoire.nom_laboratoire',
+                'secteur.lib_secteur'
             )
+            ->distinct()
             ->get();
+
 
         if ($visiteurs->isEmpty()) {
             return view('recherche', ['erreur' => 'Aucun visiteur trouvé']);
@@ -324,15 +319,18 @@ class VisiteurController extends Controller
 
         $visiteurs = DB::table('visiteur')
             ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
-            ->leftJoin('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
-            ->leftJoin('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
+            ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->join('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
             ->where('travailler.id_region', $idRegion)
             ->select(
                 'visiteur.*',
                 'laboratoire.nom_laboratoire',
-                'secteur.lib_secteur'
+                'secteur.lib_secteur',
+                'region.nom_region'
             )
             ->get();
+
 
         return view('visiteursParRegion', compact('region', 'visiteurs'));
     }
@@ -360,8 +358,5 @@ class VisiteurController extends Controller
 
         return view('top10Laboratoires', compact('top10'));
     }
-
-
-
 
 }

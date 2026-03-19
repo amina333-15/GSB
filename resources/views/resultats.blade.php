@@ -24,7 +24,7 @@
                 <td>{{ $v->nom_visiteur }}</td>
                 <td>{{ $v->prenom_visiteur }}</td>
                 <td>{{ $v->nom_laboratoire ?? '—' }}</td>
-                <td>{{ $v->lib_secteur ?? '—' }}</td>
+                <td>{{ $v->lib_secteur }}</td>
 
                 <td>
                     <a href="{{ url('/visiteur/'.$v->id_visiteur.'/listRegion') }}"
