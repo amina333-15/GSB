@@ -26,3 +26,4 @@ Route::delete('/frais/suppr', [FraisController::class, "removeFrais_API"])->midd
 Route::get('/frais/liste/{idVisiteur}', [FraisController::class, "listFrais_API"])->middleware('auth:sanctum');
 
 
+Route::get('/regions', [VisiteurController::class, 'apiRegions']);

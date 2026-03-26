@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 
 
-
 class VisiteurController extends Controller
 {
     public function login()
@@ -358,5 +357,46 @@ class VisiteurController extends Controller
 
         return view('top10Laboratoires', compact('top10'));
     }
+
+
+    //pour api gsb react
+    public function apiRegions()
+    {
+        return DB::table('region')->get();
+    }
+
+    public function apiSearch(Request $request)
+    {
+        $term = $request->recherche;
+
+        $resultats = DB::table('visiteur')
+            ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->join('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
+            ->where('nom_visiteur', 'LIKE', "%$term%")
+            ->orWhere('prenom_visiteur', 'LIKE', "%$term%")
+            ->orWhere('nom_laboratoire', 'LIKE', "%$term%")
+            ->orWhere('nom_secteur', 'LIKE', "%$term%")
+            ->get();
+
+        return response()->json($resultats);
+    }
+
+    public function apiVisiteursParRegion($idRegion)
+    {
+        $visiteurs = DB::table('visiteur')
+            ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
+            ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->where('region.id_region', $idRegion)
+            ->get();
+
+        return response()->json($visiteurs);
+    }
+
+
+//    public function apiRegions()
+//    {
+//        return DB::table('region')->get();
+//    }
+
 
 }
