@@ -26,4 +26,9 @@ Route::delete('/frais/suppr', [FraisController::class, "removeFrais_API"])->midd
 Route::get('/frais/liste/{idVisiteur}', [FraisController::class, "listFrais_API"])->middleware('auth:sanctum');
 
 
+//-------------------------------------------------------------------------------------------
+// Mission 4 : API visiteurs
 Route::get('/regions', [VisiteurController::class, 'apiRegions']);
+Route::post('/rechercherVisiteur', [VisiteurController::class, 'apiSearch']);
+Route::get('/region/{id}/visiteurs', [VisiteurController::class, 'apiVisiteursParRegion']);
+Route::get('/top10', [VisiteurController::class, 'apitop10Laboratoires']);

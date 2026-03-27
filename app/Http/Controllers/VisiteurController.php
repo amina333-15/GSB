@@ -358,11 +358,12 @@ class VisiteurController extends Controller
         return view('top10Laboratoires', compact('top10'));
     }
 
-
+//-----------------------------------------------------------------------
     //pour api gsb react
     public function apiRegions()
     {
         return DB::table('region')->get();
+
     }
 
     public function apiSearch(Request $request)
@@ -372,10 +373,11 @@ class VisiteurController extends Controller
         $resultats = DB::table('visiteur')
             ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
             ->join('secteur', 'visiteur.id_secteur', '=', 'secteur.id_secteur')
-            ->where('nom_visiteur', 'LIKE', "%$term%")
-            ->orWhere('prenom_visiteur', 'LIKE', "%$term%")
-            ->orWhere('nom_laboratoire', 'LIKE', "%$term%")
-            ->orWhere('nom_secteur', 'LIKE', "%$term%")
+            ->select(
+                'visiteur.*',
+                'laboratoire.nom_laboratoire',
+                'secteur.lib_secteur'
+            )
             ->get();
 
         return response()->json($resultats);
@@ -386,17 +388,28 @@ class VisiteurController extends Controller
         $visiteurs = DB::table('visiteur')
             ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
             ->join('region', 'travailler.id_region', '=', 'region.id_region')
-            ->where('region.id_region', $idRegion)
+            ->select(
+                'visiteur.*',
+                'region.nom_region',
+                'travailler.jjmmaa',
+                'travailler.role_visiteur'
+            )
             ->get();
 
         return response()->json($visiteurs);
     }
 
+    public function apitop10Laboratoires(){
+        $top10 = DB::table('activite_compl')
+            ->join('realiser', 'activite_compl.id_activite_compl', '=', 'realiser.id_activite_compl')
+            ->join('visiteur', 'realiser.id_visiteur', '=', 'visiteur.id_visiteur')
+            ->join('laboratoire', 'visiteur.id_laboratoire', '=', 'laboratoire.id_laboratoire')
+            ->select(
+                'laboratoire.nom_laboratoire',
+                'activite_compl.*'
+            )
+            ->get();
 
-//    public function apiRegions()
-//    {
-//        return DB::table('region')->get();
-//    }
-
-
+        return response()->json($top10);
+    }
 }
