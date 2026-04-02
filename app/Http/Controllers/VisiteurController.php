@@ -385,19 +385,23 @@ class VisiteurController extends Controller
 
     public function apiVisiteursParRegion($idRegion)
     {
-        $visiteurs = DB::table('visiteur')
+        return DB::table('visiteur')
             ->join('travailler', 'visiteur.id_visiteur', '=', 'travailler.id_visiteur')
             ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->join('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->where('travailler.id_region', $idRegion)
             ->select(
-                'visiteur.*',
+                'visiteur.id_visiteur',
+                'visiteur.nom_visiteur',
+                'visiteur.prenom_visiteur',
                 'region.nom_region',
-                'travailler.jjmmaa',
-                'travailler.role_visiteur'
+                'secteur.lib_secteur'
             )
+            ->distinct()
             ->get();
-
-        return response()->json($visiteurs);
     }
+
+
 
     public function apitop10Laboratoires(){
         $top10 = DB::table('activite_compl')
@@ -411,5 +415,53 @@ class VisiteurController extends Controller
             ->get();
 
         return response()->json($top10);
+    }
+
+
+    public function apiAffectationsVisiteur($idVisiteur)
+    {
+        return DB::table('travailler')
+            ->join('region', 'travailler.id_region', '=', 'region.id_region')
+            ->join('secteur', 'region.id_secteur', '=', 'secteur.id_secteur')
+            ->where('travailler.id_visiteur', $idVisiteur)
+            ->select(
+                'travailler.*',
+                'region.nom_region',
+                'secteur.lib_secteur'
+            )
+            ->get();
+    }
+
+    public function apiAffecterRegion(Request $request, $idVisiteur)
+    {
+        DB::table('travailler')->insert([
+            'id_visiteur' => $idVisiteur,
+            'id_region' => $request->id_region,
+            'jjmmaa' => $request->jjmmaa ?? now()->format('Y-m-d'),
+            'role_visiteur' => $request->role_visiteur ?? 'Visiteur'
+        ]);
+
+        return response()->json(['message' => 'Affectation ajoutée']);
+    }
+
+    public function apiModifierAffectation(Request $request, $idVisiteur)
+    {
+        $service = new \App\Services\VisiteurService();
+        $service->modifierRegion(
+            $idVisiteur,
+            $request->id_region,
+            $request->new_region,
+            $request->jjmmaa
+        );
+
+        return response()->json(['message' => 'Affectation modifiée']);
+    }
+
+    public function apiSupprimerAffectation(Request $request, $idVisiteur)
+    {
+        $service = new \App\Services\VisiteurService();
+        $service->supprimerRegion($idVisiteur, $request->id_region);
+
+        return response()->json(['message' => 'Affectation supprimée']);
     }
 }
