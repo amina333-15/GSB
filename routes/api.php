@@ -31,7 +31,7 @@ Route::get('/frais/liste/{idVisiteur}', [FraisController::class, "listFrais_API"
 Route::get('/regions', [VisiteurController::class, 'apiRegions']);
 Route::post('/rechercherVisiteur', [VisiteurController::class, 'apiSearch']);
 Route::get('/region/{id}/visiteurs', [VisiteurController::class, 'apiVisiteursParRegion']);
-Route::get('/top10', [VisiteurController::class, 'apitop10Laboratoires']);
+Route::get('/top10laboratoires', [VisiteurController::class, 'apitop10Laboratoires']);
 
 Route::post('/visiteur/{id}/affecter', [VisiteurController::class, 'apiAffecterRegion']);
 Route::post('/visiteur/{id}/affectation/modifier', [VisiteurController::class, 'apiModifierAffectation']);

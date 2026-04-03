@@ -401,8 +401,6 @@ class VisiteurController extends Controller
             ->get();
     }
 
-
-
     public function apitop10Laboratoires(){
         $top10 = DB::table('activite_compl')
             ->join('realiser', 'activite_compl.id_activite_compl', '=', 'realiser.id_activite_compl')
@@ -416,7 +414,6 @@ class VisiteurController extends Controller
 
         return response()->json($top10);
     }
-
 
     public function apiAffectationsVisiteur($idVisiteur)
     {
