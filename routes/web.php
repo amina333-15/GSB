@@ -52,5 +52,3 @@ Route::get('/region', function (Illuminate\Http\Request $request) {
 });
 
 Route::get('/top10Laboratoires', [VisiteurController::class, 'top10Laboratoires']);
-
-
