@@ -53,7 +53,4 @@ Route::get('/region', function (Illuminate\Http\Request $request) {
 
 Route::get('/top10Laboratoires', [VisiteurController::class, 'top10Laboratoires']);
 
-//Route pour api gsb-react
-Route::get('/regions', [VisiteurController::class, 'apiRegions']);
-Route::post('/rechercherVisiteur', [VisiteurController::class, 'apiSearch']);
-Route::get('/region/{idRegion}/visiteurs', [VisiteurController::class, 'apiVisiteursParRegion']);
+

@@ -38,3 +38,8 @@ Route::post('/visiteur/{id}/affectation/modifier', [VisiteurController::class, '
 Route::delete('/visiteur/{id}/affectation/supprimer', [VisiteurController::class, 'apiSupprimerAffectation']);
 
 Route::get('/visiteur/{id}/affectations', [VisiteurController::class, 'apiAffectationsVisiteur']);
+
+//Route pour api gsb-react
+Route::get('/regions', [VisiteurController::class, 'apiRegions']);
+Route::post('/rechercherVisiteur', [VisiteurController::class, 'apiSearch']);
+Route::get('/region/{idRegion}/visiteurs', [VisiteurController::class, 'apiVisiteursParRegion']);
